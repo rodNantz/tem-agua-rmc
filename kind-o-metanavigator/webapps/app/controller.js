@@ -55,11 +55,11 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
         	if(angular.equals(data, "httperror")) {
     			$scope.search();
     		} else {
-    			$scope.website = data; // assign  $scope.persons here as promise is resolved here
+    			$scope.website = data; //html source retornado c/ sucesso
     		}
         }).error(function (data, status, headers, config) {
         	console.log("failure");
-        	$scope.website = status;
+        	$scope.website = "<h1><i>HTML service can't be reached, try later</i></h1>";
         });
 	 
 	}

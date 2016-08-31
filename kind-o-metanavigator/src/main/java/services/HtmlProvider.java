@@ -1,5 +1,6 @@
 package services;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
@@ -48,15 +49,19 @@ public class HtmlProvider {
 				newUrl = url;
 			}
 			
-			doc = Jsoup.connect(newUrl).get();
+			doc = Jsoup.connect(newUrl).timeout(10*1000).get();
 			
-			doc.select("span").tagName("h3");
-			
-			doc.select("p").tagName("h4");
+			//doc.select("p").tagName("h4");
 			
 			//links
-			Elements hrefElements = doc.select("a");
-			for (Element element : hrefElements) {
+			Elements aHrefElements = doc.select("a");
+			for (Element element : aHrefElements) {
+			    element.attr("href", element.attr("abs:href"));
+			    element.addClass(Enums.LINK_CLASS.getProp());
+			}      
+			
+			Elements linkHrefElements = doc.select("link");
+			for (Element element : linkHrefElements) {
 			    element.attr("href", element.attr("abs:href"));
 			    element.addClass(Enums.LINK_CLASS.getProp());
 			}      
@@ -78,6 +83,8 @@ public class HtmlProvider {
 			html = doc.html();
 			
 		} catch(HttpStatusException httpExc){
+			return Enums.HTTP_ERROR.getProp();
+		} catch(SocketTimeoutException timeoutExc){
 			return Enums.HTTP_ERROR.getProp();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

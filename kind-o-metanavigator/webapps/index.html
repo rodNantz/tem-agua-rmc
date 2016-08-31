@@ -15,17 +15,17 @@
 					$('#iframe').css('opacity', 0);
 					$('#iframe').css('opacity', 1);
 					$('#iframe').css('background-image', 'url(img/unloaded.png)');
-					$('#iframe').css('background-position', 'center');
-					
-					$(document).ready(function() {
-					    $('.wsOnClick').click(function(e) {
-					        e.preventDefault();
-					        alert('You clicked the link.');
-					        angular.element('#content').scope().urlToFile(this.href);
-					    });
-					});
-					
-				}		
+					$('#iframe').css('background-position', 'center');					
+				}	
+				
+				$(document).ready(function() {
+				    $('.wsOnClick').click(function(e) {
+				        e.preventDefault();
+				        alert('You clicked the link.');
+				        angular.element('#content').scope().urlToFile(this.href);
+				        return false;
+				    });
+				});
 			</script>
 			
 			<header style="width:100%; height: 40px; margin-top:5px;" >
