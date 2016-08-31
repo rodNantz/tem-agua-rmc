@@ -85,7 +85,7 @@ public class HtmlProvider {
 		} catch(HttpStatusException httpExc){
 			return Enums.HTTP_ERROR.getProp();
 		} catch(SocketTimeoutException timeoutExc){
-			return Enums.HTTP_ERROR.getProp();
+			return Enums.TIMEOUT_ERROR.getProp();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
