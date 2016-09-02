@@ -8,8 +8,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -17,10 +19,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.google.gson.Gson;
+
+
+
 @Path("")
 public class HtmlProvider {
 
 	ArrayList<String> lista = new ArrayList<String>();
+	Gson gson = new Gson();
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
