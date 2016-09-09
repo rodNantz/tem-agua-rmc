@@ -55,9 +55,36 @@ public class TestGeneral {
 			String objectStr = response.readEntity(String.class);
 			ReadabilityResponse readObj = gson.fromJson(objectStr, ReadabilityResponse.class);
 			
-			System.out.println(readObj.getContent());
+			System.out.println(readObj.getContent().substring(0, 20) + "[...]\n");
 			Assert.assertNotNull(objectStr);
 		} catch (Exception e){
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testReadabilityWebService() {
+		try {
+			String endpoint = "http://localhost:8008/server/ws/readapi";
+			String url = "http://www.wikipedia.org";
+			
+			WebTarget target = ClientBuilder.newClient().target(endpoint); 
+			Response response = target
+					.request(MediaType.TEXT_PLAIN)
+					.post(Entity.entity(url, MediaType.TEXT_PLAIN_TYPE), Response.class);
+			if (response.getStatus() == 200){
+				String objectStr = response.readEntity(String.class);
+				ReadabilityResponse readObj = gson.fromJson(objectStr, ReadabilityResponse.class);
+				System.out.println("Sucessful call: "+ readObj.toString());
+				Assert.assertTrue(true);
+			} else {
+				System.err.println("HTTP ERROR: ");
+				System.err.println(response.readEntity(String.class));
+				Assert.fail();
+			}
+			
+		} catch (Exception e){
+			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
 	}

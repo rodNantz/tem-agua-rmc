@@ -56,10 +56,9 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
 	
 	$scope.urlToFile = function(url){
 		console.log("urlToFile function");
-	
 		$http({
 		    method : "POST",
-		    url : "http://localhost:8008/server/ws/readapi",
+		    url : "http://localhost:8008/server/ws",
 		    data : url,
 		    headers : {
 		        'Content-Type' : 'text/plain'
@@ -78,30 +77,6 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
 	 
 	}
 	
-	$scope.readability = function(){
-		console.log("readability function");
-		
-		$http({
-		    method : "POST",
-		    url : "http://localhost:8008/server/ws/readapi",
-		    data : $scope.inputSite,
-		    headers : {
-		        'Content-Type' : 'text/plain'
-		    }
-        }).success(function (data, status, headers, config) {
-        	console.log("success");
-        	if(angular.equals(data, "httperror")) {
-    			alert("Some error");
-    		} else {
-    			$scope.website = data; //html source retornado c/ sucesso
-    		}
-        }).error(function (data, status, headers, config) {
-        	console.log("failure");
-        	$scope.website = "<h1><i>HTML service can't be reached, try later</i></h1>";
-        });
-	}
-	
-
 	
 }]);
 

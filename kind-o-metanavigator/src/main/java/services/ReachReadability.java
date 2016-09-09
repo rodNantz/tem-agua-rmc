@@ -31,29 +31,5 @@ public class ReachReadability {
 		return lista;
 	}
 	
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.TEXT_PLAIN)
-	public String readabilityApi(String url){
-		//https://readability.com/api/content/v1/parser
-		try {
-			String token = Enums.TOKEN_RAPI.getProp();
-			String endpoint = Enums.ENDPOINT_RAPI.getProp();
-			String finalEndpoint = endpoint
-							+ "?url=" + url
-							+ "&token=" + token;
-			WebTarget caller = ClientBuilder.newClient().target(finalEndpoint);
-			Response response = caller
-								.request()
-								.get(Response.class);
-			
-			String objectStr = response.readEntity(String.class);
-			ReadabilityResponse respObj = gson.fromJson(objectStr, ReadabilityResponse.class);
-			return respObj.getContent();
-		} catch (Exception e){
-			e.printStackTrace();
-			return "error";
-		}
-	}
 }
 
