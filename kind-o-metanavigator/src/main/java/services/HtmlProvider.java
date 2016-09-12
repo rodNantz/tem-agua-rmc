@@ -22,12 +22,14 @@ import org.jsoup.select.Elements;
 import com.google.gson.Gson;
 
 import services.bean.ReadabilityResponse;
+import test.MyLog;
 
 @Path("")
 public class HtmlProvider {
 
 	ArrayList<String> lista = new ArrayList<String>();
 	Gson gson = new Gson();
+	MyLog log = new MyLog();
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -40,6 +42,7 @@ public class HtmlProvider {
 
 	/**
 	 * Receives a URL and retrieves its HTML source, possibly treated.
+	 * Readability Parser API: https://www.readability.com/developers/api/parser
 	 * @param url
 	 * @return htmlString
 	 */
@@ -59,13 +62,14 @@ public class HtmlProvider {
 			} else {
 				newUrl = url;
 			}
-		
+			url = null;
+			
 		// first, trying with Readability API
 		try {
 			String token = Enums.TOKEN_RAPI.getProp();
 			String endpoint = Enums.ENDPOINT_RAPI.getProp();
 			String finalEndpoint = endpoint
-							+ "?url=" + url
+							+ "?url=" + newUrl
 							+ "&token=" + token;
 			WebTarget caller = ClientBuilder.newClient().target(finalEndpoint);
 			Response response = caller
@@ -74,7 +78,13 @@ public class HtmlProvider {
 			
 			String objectStr = response.readEntity(String.class);
 			ReadabilityResponse respObj = gson.fromJson(objectStr, ReadabilityResponse.class);
-			return respObj.getContent();
+			
+			if (respObj.getContent() != null){
+				html = Processa(respObj.getContent());
+				return html;	
+			} else {
+				log.add("error", objectStr);
+			}
 			
 		} catch (Exception e){
 			System.err.println("Error: " + e.getMessage());	
@@ -84,12 +94,13 @@ public class HtmlProvider {
 		// If there was a error, trying with JSOUP
 		
 		try {
+			log.add("info", "Using JSOUP...");
 			Document doc = null;
 			doc = Jsoup.connect(newUrl).timeout(10*1000).get();
 			
 			//doc.select("p").tagName("h4");
 			
-			String html = 
+			html = Processa(doc);
 			
 		} catch(HttpStatusException httpExc){
 			return Enums.HTTP_ERROR.getProp();
@@ -103,8 +114,11 @@ public class HtmlProvider {
 	}
 	
 	public static String Processa(String rawHtml){
-
 		Document doc = Jsoup.parse(rawHtml);
+		return Processa(doc);
+	}
+	
+	public static String Processa(Document doc){
 
 		//doc.select("p").tagName("h4");
 		
@@ -112,12 +126,20 @@ public class HtmlProvider {
 		Elements aHrefElements = doc.select("a");
 		for (Element element : aHrefElements) {
 		    element.attr("href", element.attr("abs:href"));
+		    /*
+		    element.attr("onclick", "return openLink('" + element.attr("href") + "')");
+		    element.attr("href", "#");
+		    */
 		    element.addClass(Enums.LINK_CLASS.getProp());
 		}      
 		
 		Elements linkHrefElements = doc.select("link");
 		for (Element element : linkHrefElements) {
 		    element.attr("href", element.attr("abs:href"));
+		    /*
+		    element.attr("onclick", "openLink('" + element.attr("href") + "')");
+		    element.attr("href", "#");
+		    */
 		    element.addClass(Enums.LINK_CLASS.getProp());
 		}      
 		
