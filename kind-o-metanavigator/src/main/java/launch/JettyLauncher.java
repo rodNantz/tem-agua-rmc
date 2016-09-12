@@ -35,7 +35,7 @@ public class JettyLauncher {
 		config.packages("services");
 		ServletHolder servlet = new ServletHolder(new ServletContainer(config));
 		ServletContextHandler context = new ServletContextHandler(server, "/server"); //context path
-		context.addServlet(servlet, "/ws"); //server/ws
+		context.addServlet(servlet, "/*"); //server/ws
 
 		a.addHandler(resourceHandler); // index
 		a.addHandler(context);

@@ -2,11 +2,13 @@ package services;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -23,26 +25,73 @@ import com.google.gson.Gson;
 
 import services.bean.ReadabilityResponse;
 import test.MyLog;
+import test.MyLog.Group;
 
-@Path("")
+// /server/ws
+@Path("/ws")
 public class HtmlProvider {
 
-	ArrayList<String> lista = new ArrayList<String>();
 	Gson gson = new Gson();
 	MyLog log = new MyLog();
 	
+	/**
+	 * Receives a URL and retrieves its HTML source treated by Readability API.
+	 * localhost:8008/server/ws/example.com
+	 * @param url
+	 * @return htmlString
+	 */
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<String> getWorking(){
-		lista.add("yes,");
-		lista.add("it");
-		lista.add("works!");
-		return lista;
+	@Path("/{url}")
+	@Produces("text/plain")
+	public String readabilityCall(@PathParam("url") String url){
+		
+		log.add(Group.INFO, "entered readabilityCall");
+		String newUrl = "";
+		String html = ""; 
+		
+		try {
+			if( (!url.startsWith("http://")) && (!url.startsWith("https://")) ){			
+				newUrl = "http://" + url;
+			} else {
+				newUrl = url;
+			}
+			url = null;
+			
+			String token = Enums.TOKEN_RAPI.getProp();
+			String endpoint = Enums.ENDPOINT_RAPI.getProp();
+			String finalEndpoint = endpoint
+							+ "?url=" + newUrl
+							+ "&token=" + token;
+			
+			WebTarget caller = ClientBuilder.newClient().target(finalEndpoint);
+			Response response = caller
+								.request()
+								.get(Response.class);
+			
+			String objectStr = response.readEntity(String.class);
+			ReadabilityResponse respObj = gson.fromJson(objectStr, ReadabilityResponse.class);
+			
+			if (respObj.getContent() != null){
+				html = Processa(respObj.getContent());
+				// successful
+				return html;	
+			} else {
+				log.add(Group.ERROR, "@ERR: URL not found");
+				return "@ERR: URL not found";
+			}
+			
+		} catch (Exception e){
+			log.add(Group.ERROR, e.getMessage());
+			e.printStackTrace();
+			return "@ERR: " + e.getMessage();
+		}
+		
 	}
 
+	
 	/**
-	 * Receives a URL and retrieves its HTML source, possibly treated.
-	 * Readability Parser API: https://www.readability.com/developers/api/parser
+	 * Receives a URL and retrieves its HTML source, treated.
+	 * 
 	 * @param url
 	 * @return htmlString
 	 */
@@ -64,37 +113,10 @@ public class HtmlProvider {
 			}
 			url = null;
 			
-		// first, trying with Readability API
-		try {
-			String token = Enums.TOKEN_RAPI.getProp();
-			String endpoint = Enums.ENDPOINT_RAPI.getProp();
-			String finalEndpoint = endpoint
-							+ "?url=" + newUrl
-							+ "&token=" + token;
-			WebTarget caller = ClientBuilder.newClient().target(finalEndpoint);
-			Response response = caller
-								.request()
-								.get(Response.class);
-			
-			String objectStr = response.readEntity(String.class);
-			ReadabilityResponse respObj = gson.fromJson(objectStr, ReadabilityResponse.class);
-			
-			if (respObj.getContent() != null){
-				html = Processa(respObj.getContent());
-				return html;	
-			} else {
-				log.add("error", objectStr);
-			}
-			
-		} catch (Exception e){
-			System.err.println("Error: " + e.getMessage());	
-			e.printStackTrace();
-		}
 		
-		// If there was a error, trying with JSOUP
-		
+		// JSOUP
 		try {
-			log.add("info", "Using JSOUP...");
+			log.add(Group.INFO, "Using JSOUP...");
 			Document doc = null;
 			doc = Jsoup.connect(newUrl).timeout(10*1000).get();
 			
@@ -103,16 +125,24 @@ public class HtmlProvider {
 			html = Processa(doc);
 			
 		} catch(HttpStatusException httpExc){
+			log.add(Group.ERROR, httpExc.getMessage());
 			return Enums.HTTP_ERROR.getProp();
 		} catch(SocketTimeoutException timeoutExc){
+			log.add(Group.ERROR, timeoutExc.getMessage());
 			return Enums.TIMEOUT_ERROR.getProp();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			log.add(Group.ERROR, e.getMessage());
+			log.add(Group.ERROR, new String[]{
+					e.getMessage(), 
+					Calendar.getInstance().getTime().toString()}
+			);
 			e.printStackTrace();
 		}
 		return html;
 	}
 	
+	// used by the services
 	public static String Processa(String rawHtml){
 		Document doc = Jsoup.parse(rawHtml);
 		return Processa(doc);
@@ -126,20 +156,12 @@ public class HtmlProvider {
 		Elements aHrefElements = doc.select("a");
 		for (Element element : aHrefElements) {
 		    element.attr("href", element.attr("abs:href"));
-		    /*
-		    element.attr("onclick", "return openLink('" + element.attr("href") + "')");
-		    element.attr("href", "#");
-		    */
 		    element.addClass(Enums.LINK_CLASS.getProp());
 		}      
 		
 		Elements linkHrefElements = doc.select("link");
 		for (Element element : linkHrefElements) {
 		    element.attr("href", element.attr("abs:href"));
-		    /*
-		    element.attr("onclick", "openLink('" + element.attr("href") + "')");
-		    element.attr("href", "#");
-		    */
 		    element.addClass(Enums.LINK_CLASS.getProp());
 		}      
 		

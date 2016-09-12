@@ -27,6 +27,7 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
 	
 	$scope.angularEquals = angular.equals; //function
 	
+	// URL and GO button
 	$scope.loadNewPage = function() {
 		console.log("loadNewPage function");
 		
@@ -40,6 +41,7 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
 		
 	}
 	
+	//URL and SEARCH button
 	$scope.search = function() {
 		console.log("search function");
 		//http://www.bing.com/search?q=lalala+e+la
@@ -54,6 +56,7 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
 		
 	}
 	
+	// used for the methods above
 	$scope.urlToFile = function(url){
 		console.log("urlToFile function");
 		$http({
@@ -77,6 +80,25 @@ app.controller('MainController',['$scope','$http', function($scope,$http) {
 	 
 	}
 	
+	$scope.readability = function(url){
+		console.log("readability function");
+		var fullUrl = "http://localhost:8008/server/ws/" + url; 
+		$http({
+		    method : "GET",
+		    url : fullUrl,
+        }).success(function (data, status, headers, config) {
+        	console.log("success");
+        	if(angular.equals(data, "httperror")) {
+    			$scope.search();
+    		} else {
+    			$scope.website = data; //html source retornado c/ sucesso
+    		}
+        }).error(function (data, status, headers, config) {
+        	console.log("failure");
+        	$scope.website = "<h1><i>HTML service can't be reached, try later</i></h1>";
+        });
+	 
+	}
 	
 }]);
 

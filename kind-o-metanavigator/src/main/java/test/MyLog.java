@@ -1,5 +1,6 @@
 package test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,23 +10,53 @@ public class MyLog {
 	
 	MultiMap<String> map;
 	
+	public enum Group {
+		INFO("info"),
+		WARNING("warn"),
+		ERROR("error"); 
+		public final String property;
+		
+		Group(String prop){
+			this.property = prop;
+		}
+		
+		public String getProp(){
+			return this.property;
+		}
+		public String newProp(String prop){
+			return prop;
+		}
+		
+	};
+	
 	public MyLog(){
 		if(true){
 			map = new MultiMap<String>();
 		}
 	}
 	
-	public MyLog(String group, String msg){
+	
+	public MyLog(Group group, String msg){
 		if(true){
 			map = new MultiMap<String>();
-			map.add(group, msg);
+			map.add(group.getProp(), msg);
 			System.out.println(msg);
 		}
 	}
 	
-	public void add(String group, String msg){
-		map.add(group, msg);
+
+	public void add(Group group, String msg){
+		map.add(group.getProp(), msg);
 		System.out.println(msg);
+	}
+	
+	public void add(Group group, String[] msgs){
+		StringBuilder builder = new StringBuilder();
+		for(String msg : msgs){
+			builder.append(msg + "\n");
+		}
+		map.add(group.getProp(), builder.toString());
+		System.out.println(builder.toString());
 	}
 	
 	public void retrieveLog(){
