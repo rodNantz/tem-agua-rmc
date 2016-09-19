@@ -1,3 +1,4 @@
+
 <script type="text/javascript">
 
 			function init(){
@@ -15,12 +16,19 @@
 					
 			$('.wsOnClick').click(function(event)
 				{
+				event.preventDefault();
 				alert("~õ~");
+				
 				var href = $(this).attr('href');
 				alert(href);	 
-				angular.element(document.getElementById('content')).scope().urlToFile(url);
 				
-				event.preventDefault();
+				angular.element('body').scope().urlToFile(href);
+				
+				var website = angular.element('body').scope().website;
+				alert(website);
+				
+				$('#realAdress', window.parent.document).val(website);
+				
 				}
 			);
 		

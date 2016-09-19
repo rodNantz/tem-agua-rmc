@@ -20,12 +20,15 @@ import javax.ws.rs.core.Response;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.google.gson.Gson;
 
+import javassist.bytecode.analysis.ControlFlow.Node;
 import services.bean.ReadabilityResponse;
 import test.MyLog;
 import test.MyLog.Group;
@@ -35,7 +38,7 @@ import test.MyLog.Group;
 public class HtmlProvider {
 
 	Gson gson = new Gson();
-	MyLog log = new MyLog();
+	static MyLog log = new MyLog();
 	/**
 	 * Receives a URL and retrieves its HTML source treated by Readability API.
 	 * localhost:8008/server/ws/example.com
@@ -141,6 +144,9 @@ public class HtmlProvider {
 			);
 			e.printStackTrace();
 		}
+		
+		log.add(Group.INFO, html);
+		//source returned
 		return html;
 	}
 	
@@ -181,6 +187,12 @@ public class HtmlProvider {
 			element.addClass(Enums.LINK_CLASS.getProp());
 		}
 		
+		
+		doc.body().attr("ng-app", "metaNav");
+		doc.body().attr("ng-controller","MainController");
+		
+		doc.body().id();
+		
 		//jquery
 		doc.head().append("<script src=\"https://code.jquery.com/jquery-3.1.0.min.js\"></script>");
 		
@@ -192,11 +204,6 @@ public class HtmlProvider {
 		
 		String angularController = new Scanner(new File("strSrc/angularController")).useDelimiter("\\Z").next();
 		doc.head().append(angularController);
-		
-		doc.body().attr("ng-app", "metaNav");
-		
-		doc.body().append("<p>{{title}}</p>");
-		
 		
 		return doc.html();
 	}

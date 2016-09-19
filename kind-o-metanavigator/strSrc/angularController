@@ -1,3 +1,4 @@
+
 <script>
 	var app = angular.module('metaNav', []);
 	
@@ -72,6 +73,7 @@
 	    			$scope.search();
 	    		} else {
 	    			$scope.website = data; //html source retornado c/ sucesso
+	    			//return data;
 	    		}
 	        }).error(function (data, status, headers, config) {
 	        	console.log("failure");
