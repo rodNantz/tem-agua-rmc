@@ -1,8 +1,11 @@
 package services;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Scanner;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -33,7 +36,6 @@ public class HtmlProvider {
 
 	Gson gson = new Gson();
 	MyLog log = new MyLog();
-	
 	/**
 	 * Receives a URL and retrieves its HTML source treated by Readability API.
 	 * localhost:8008/server/ws/example.com
@@ -143,12 +145,12 @@ public class HtmlProvider {
 	}
 	
 	// used by the services
-	public static String Processa(String rawHtml){
+	public static String Processa(String rawHtml) throws FileNotFoundException{
 		Document doc = Jsoup.parse(rawHtml);
 		return Processa(doc);
 	}
 	
-	public static String Processa(Document doc){
+	public static String Processa(Document doc) throws FileNotFoundException{
 
 		//doc.select("p").tagName("h4");
 		
@@ -173,11 +175,28 @@ public class HtmlProvider {
 		}
 		
 		//scripts
-		Elements linkElements = doc.head().select("script");
+		Elements linkElements = doc.select("script");
 		for (Element element : linkElements) {
 			element.attr("src", element.absUrl("abs:src"));
 			element.addClass(Enums.LINK_CLASS.getProp());
 		}
+		
+		//jquery
+		doc.head().append("<script src=\"https://code.jquery.com/jquery-3.1.0.min.js\"></script>");
+		
+		String jQueryClick = new Scanner(new File("strSrc/jQueryCLick")).useDelimiter("\\Z").next();
+		doc.body().append(jQueryClick);
+		
+		//angular
+		doc.head().append("<script src=\"http://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js\"></script>");
+		
+		String angularController = new Scanner(new File("strSrc/angularController")).useDelimiter("\\Z").next();
+		doc.head().append(angularController);
+		
+		doc.body().attr("ng-app", "metaNav");
+		
+		doc.body().append("<p>{{title}}</p>");
+		
 		
 		return doc.html();
 	}

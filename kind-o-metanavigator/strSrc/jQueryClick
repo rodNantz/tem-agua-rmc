@@ -1,0 +1,27 @@
+<script type="text/javascript">
+
+			function init(){
+				$('#iframe').css('opacity', 0);
+				$('#iframe').css('opacity', 1);
+				$('#iframe').css('background-image', 'url(img/unloaded.png)');
+				$('#iframe').css('background-position', 'center');					
+			}	
+					
+			function openLink(url){
+				alert('You clicked the link.');
+				angular.element(document.getElementById('content')).scope().urlToFile(url);
+				return false;		
+			}
+					
+			$('.wsOnClick').click(function(event)
+				{
+				alert("~õ~");
+				var href = $(this).attr('href');
+				alert(href);	 
+				angular.element(document.getElementById('content')).scope().urlToFile(url);
+				
+				event.preventDefault();
+				}
+			);
+		
+</script>
