@@ -196,13 +196,13 @@ public class HtmlProvider {
 		//jquery
 		doc.head().append("<script src=\"https://code.jquery.com/jquery-3.1.0.min.js\"></script>");
 		
-		String jQueryClick = new Scanner(new File("strSrc/jQueryCLick")).useDelimiter("\\Z").next();
+		String jQueryClick = new Scanner(new File("resources/jsSrc/jQueryCLick")).useDelimiter("\\Z").next();
 		doc.body().append(jQueryClick);
 		
 		//angular
 		doc.head().append("<script src=\"http://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js\"></script>");
 		
-		String angularController = new Scanner(new File("strSrc/angularController")).useDelimiter("\\Z").next();
+		String angularController = new Scanner(new File("resources/jsSrc/angularController")).useDelimiter("\\Z").next();
 		doc.head().append(angularController);
 		
 		return doc.html();
