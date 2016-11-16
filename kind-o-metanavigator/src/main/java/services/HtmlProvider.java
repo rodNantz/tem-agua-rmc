@@ -150,12 +150,26 @@ public class HtmlProvider {
 		return html;
 	}
 	
-	// used by the services
+	
+	/**
+	 * used by the services
+	 * 
+	 * @param rawHtml
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	public static String Processa(String rawHtml) throws FileNotFoundException{
 		Document doc = Jsoup.parse(rawHtml);
 		return Processa(doc);
 	}
 	
+	/**
+	 * used by the services
+	 * 
+	 * @param doc
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	public static String Processa(Document doc) throws FileNotFoundException{
 
 		//doc.select("p").tagName("h4");

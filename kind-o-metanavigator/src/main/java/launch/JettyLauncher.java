@@ -32,7 +32,7 @@ public class JettyLauncher {
 		server = new Server(port);
 		HandlerList a = new HandlerList();
 		
-		//static
+		//static content
 		ResourceHandler resourceHandler= new ResourceHandler();
         resourceHandler.setResourceBase("webapps");
         resourceHandler.setDirectoriesListed(true);

@@ -21,13 +21,9 @@
 				
 				var href = $(this).attr('href');
 				alert(href);	 
-				
-				angular.element('body').scope().urlToFile(href);
-				
-				var website = angular.element('body').scope().website;
-				alert(website);
-				
-				$('#realAdress', window.parent.document).val(website);
+							
+				$(parent.document.getElementById('inputSite')).val(href);
+							
 				
 				}
 			);
