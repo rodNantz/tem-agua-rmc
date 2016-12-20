@@ -40,6 +40,7 @@ public class HtmlProvider {
 	Gson gson = new Gson();
 	static MyLog log = new MyLog();
 	/**
+	 * WARNING: Readability API will be shutted down. Use Mercury Toolkit instead.
 	 * Receives a URL and retrieves its HTML source treated by Readability API.
 	 * localhost:8008/server/ws/example.com
 	 * @param url
