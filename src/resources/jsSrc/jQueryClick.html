@@ -1,0 +1,31 @@
+
+<script type="text/javascript">
+
+			function init(){
+				$('#iframe').css('opacity', 0);
+				$('#iframe').css('opacity', 1);
+				$('#iframe').css('background-image', 'url(img/unloaded.png)');
+				$('#iframe').css('background-position', 'center');					
+			}	
+					
+			function openLink(url){
+				alert('You clicked the link.');
+				angular.element(document.getElementById('content')).scope().urlToFile(url);
+				return false;		
+			}
+					
+			$('.wsOnClick').click(function(event)
+				{
+				event.preventDefault();
+				alert("~õ~");
+				
+				var href = $(this).attr('href');
+				alert(href);	 
+							
+				$(parent.document.getElementById('inputSite')).val(href);
+							
+				
+				}
+			);
+		
+</script>
