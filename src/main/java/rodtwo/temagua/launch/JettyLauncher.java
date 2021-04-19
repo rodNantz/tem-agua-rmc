@@ -28,7 +28,10 @@ public class JettyLauncher {
 
 	public static void main(String[] args) throws URISyntaxException, MalformedURLException {
 		
-		port = Integer.parseInt(PropertySource.props.getProperty("temagua.launch.port"));
+		String svrPort = System.getenv("PORT");
+		System.out.println("svrPort: "+ svrPort);
+		port = svrPort != null ? Integer.parseInt(svrPort) 
+								  : Integer.parseInt(PropertySource.props.getProperty("temagua.launch.port"));
 		
 		server = new Server(port);
 		HandlerList a = new HandlerList();
