@@ -59,7 +59,7 @@ public class ServiceProvider {
 	@GET
 	@Path("/html/{end}")
 	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.TEXT_HTML /* + "; charset=UTF-8"*/) 
+	@Produces(MediaType.TEXT_HTML +"; charset=UTF-8") 
 	public String getContentAsHTML(@PathParam("end") String input) {
 		HtmlStringBuilderHelper html = new HtmlStringBuilderHelper();
 		getHtmlHead(html);
