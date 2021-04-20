@@ -12,4 +12,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="tem-agua-rmc"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="tem-agua-rmc"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dmyloglevel=INFO"/>
 </launchConfiguration>

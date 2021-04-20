@@ -20,11 +20,14 @@ import org.glassfish.jersey.servlet.ServletContainer;
 
 import rodtwo.temagua.services.ServiceProvider;
 import rodtwo.temagua.services.bean.PropertySource;
+import rodtwo.temagua.util.MyLog;
+import rodtwo.temagua.util.MyLog.Group;
 
 public class JettyLauncher {
 
 	private static Server server;
 	private static int port = 8080;
+	private static MyLog log = MyLog.getInstance();
 
 	public static void main(String[] args) throws URISyntaxException, MalformedURLException {
 		
@@ -56,7 +59,7 @@ public class JettyLauncher {
 		
         // Start the server
         try {
-        	System.out.println("@localhost:" + port);
+        	log.add(Group.INFO, "@localhost:" + port);
 			server.start();
 			server.join();
 		} catch (Exception e) {

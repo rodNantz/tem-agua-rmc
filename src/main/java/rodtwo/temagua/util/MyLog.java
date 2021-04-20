@@ -9,30 +9,32 @@ public class MyLog {
 	MultiMap<String> map;
 	static boolean[] print = new boolean[3];
 	private static MyLog logInstance; 
+	static final Group defaultSeverity = getDefaultSeverity();
 	
 	public enum Group {
-		INFO("info"),
-		WARNING("warn"),
-		ERROR("error"); 
+		INFO("INFO"),
+		WARNING("WARN"),
+		ERROR("ERROR"); 
 		public final String property;
 		
 		Group(String prop){
 			this.property = prop;
 		}
 		
-		public String getProp(){
-			return this.property;
-		}
-		public String newProp(String prop){
-			return prop;
+		public static Group getGroup(String prop){
+			if (prop.equalsIgnoreCase(INFO.property))
+				return Group.INFO;
+			if (prop.equalsIgnoreCase(WARNING.property))
+				return Group.WARNING;
+			if (prop.equalsIgnoreCase(ERROR.property))
+				return Group.ERROR;
+			return null;
 		}
 		
 	};
 	
 	public static MyLog getInstance() {
-		if (logInstance == null ||
-			!print[0] || !print[1] || !print[2]
-		   ){
+		if (logInstance == null || !logInstance.matchesCurrentSeverity(defaultSeverity)) {
 			// log everyting
 			logInstance = new MyLog();
 		}
@@ -50,10 +52,17 @@ public class MyLog {
 	
 	private MyLog(){
 		// log everything
+		System.out.println("Log switched to: "+ defaultSeverity.property);
 		map = new MultiMap<String>();
-		print[0] = true;
-		print[1] = true;
-		print[2] = true;
+		switch (defaultSeverity) {
+			// não usar 'break' - ex. se for ERROR, [1] [2] e [3] = TRUE
+			case INFO:
+				print[0] = true;
+			case WARNING:
+				print[1] = true;
+			case ERROR:
+				print[2] = true;
+		}
 	}
 	
 	private MyLog(boolean printInfo, boolean printWarning, boolean printError) {	
@@ -64,8 +73,20 @@ public class MyLog {
 	
 	}
 	
+	private boolean matchesCurrentSeverity(Group severity) {
+		// começar da mais abrangente (INFO) pra mais específica (ERROR)
+		if (print[0] && print[1] && print[2] && severity == Group.INFO )
+			return true;
+		else if (print[1] && print[2] && severity == Group.WARNING )
+			return true;
+		else if (print[2] && severity == Group.ERROR )
+			return true;
+		
+		return false;
+	}
+	
 	public void add(Group group, String msg){
-		map.add(group.getProp(), msg);
+		map.add(group.property, msg);
 		if(isPrinted(group)){
 			System.out.println(msg);
 		}
@@ -76,7 +97,7 @@ public class MyLog {
 		for(String msg : msgs){
 			builder.append(msg + "\n");
 		}
-		map.add(group.getProp(), builder.toString());
+		map.add(group.property, builder.toString());
 		if(isPrinted(group)){
 			System.out.println(builder.toString());
 		}
@@ -104,4 +125,16 @@ public class MyLog {
 		}
 	}
 	
+	static private Group getDefaultSeverity() {
+		String severityArg = System.getProperty("myloglevel");
+		if (severityArg != null) {
+			switch (Group.getGroup(severityArg)) {
+				case INFO:
+				case WARNING:
+				case ERROR:
+					return Group.getGroup(severityArg);
+			}
+		}
+		return Group.ERROR; 	// default if not specified on init parameter
+	}
 }

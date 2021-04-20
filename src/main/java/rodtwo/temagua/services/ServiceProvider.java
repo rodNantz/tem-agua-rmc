@@ -2,6 +2,7 @@ package rodtwo.temagua.services;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,6 +19,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
@@ -33,84 +35,86 @@ import com.google.gson.Gson;
 
 import javassist.bytecode.analysis.ControlFlow.Node;
 import rodtwo.temagua.services.*;
+import rodtwo.temagua.services.bean.PeriodoRodizio;
 import rodtwo.temagua.util.MyLog;
 import rodtwo.temagua.util.MyLog.Group;
 
-// /server/ws
-@Path("/ws")
+// /server/rodizio
+@Path("/rodizio")
 public class ServiceProvider {
 
 	Gson gson = new Gson();
 	MyLog log = MyLog.getInstance();
+	static final String newUrl = "http://site.sanepar.com.br/grupos-rodizio";
 	
 	/**
 	 * Scraping do site da Sanepar - rodízio em Curitiba e RM
-	 * ex. chamada: /server/grupos-rodizio/2-SAIC 
+	 * ex. chamada: /server/rodizio/2-SAIC 
 	 * 
 	 * @param url
 	 * @return htmlString
 	 */
+	
 	@GET
-	@Path("/{end}")
+	@Path("/html/{end}")
 	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.TEXT_HTML) 
-	public String treatUrl(@PathParam("end") String input){
-		// Grupo 2 SAIC - "área do Recalque Baixo do Reservatório Cajuru"
+	@Produces(MediaType.TEXT_HTML + "; charset=UTF-8") 
+	public String getContentAsHTML(@PathParam("end") String input){
+		String html = "Sanepar - Rodízio RMC - Grupo: "+ input + "<br//><br//>";
+		Response res = callPageScraping(html, input);
 		
-		input = input.replace('-',' '); 
+		// checar se contém lista
+		if (res.hasEntity() && res.getEntity() instanceof List) { 
+			List<?> rodizios = (List<?>) res.getEntity();
+			for(Object o : rodizios) {
+				PeriodoRodizio rod = (PeriodoRodizio) o;
+				html += ("Início do rodízio: "+ rod.hrInicio + "<br//>");
+				html += ("Previsão de volta da água: "+ rod.hrFim + "<br//><br//>");
+			}
+			if (rodizios.isEmpty())
+				html += "Grupo não encontrado.";
+		} else {
+			html += ("Erro "+ res.getStatus() + 
+					 (res.hasEntity() ? " - "+ res.getEntity() : "")
+					);
+		}
 		
-		String newUrl = "http://site.sanepar.com.br/grupos-rodizio"; 		// tabela
-		String html = "Sanepar - Rodízio RMC - Grupo: "+ input + "\n\n";
-		
-		List<String> formIdBlocklist = new ArrayList<>();
-		formIdBlocklist.add("search-block-form");
-		
-		// JSOUP
+		return html;
+	}
+	
+	@GET
+	@Path("/json/{end}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getContentAsJSON(@PathParam("end") String input){
+		// TODO
+		return "TODO";
+	}
+	
+	private Response callPageScraping(String ret, String input){
+		input = input.replace('-',' ');
 		try {
-			log.add(Group.INFO, "Using JSOUP...");
-			
 			Connection.Response resp = Jsoup.connect(newUrl).timeout(10*1000).execute();
-			Document doc = resp.parse();
-			//log.add(Group.INFO, "doc: "+ doc);
-			
-			// find form
-			FormElement form = null;
-			for (Element potentialForm : doc.select("form")) {
-				if (potentialForm.id().equals("views-exposed-form-tabela-grupo-rodizio-page-1"))
-					form = (FormElement) potentialForm;
-			}
-			log.add(Group.INFO, "form: "+ form);
-						
-			Element textBox = form.select("input#edit-grupo").first();
-			textBox.val(input);
-			
-			// ** Submit the form
-			Document searchResults = form.submit().cookies(resp.cookies()).get();
-		
-			// read text
-			for (Element entityNumber : searchResults.select("table.views-table")) {
-				log.add(Group.INFO, "searchresElement: " + entityNumber.text());
-				int i = 1;
-				for (Element entity : searchResults.select("span.data-rodizio")) {
-					log.add(Group.INFO, "e" + i + ": " + (entity));
-					boolean isIniRodizio = (i % 2 != 0); 
-					if (isIniRodizio)
-						html += "Início do rodízio: ";
-					else
-						html += "Previsão de volta da água: ";
-					html += entity.text() + 
-							(isIniRodizio ? "\n" : "\n\n");
-					i++;
-				}
-				break; // do only once
-			}
+			List<PeriodoRodizio> rodizios = extrairRodizio(resp, input);
+			log.add(Group.INFO, ret);
+			//source returned
+			return Response
+				      .status(Status.OK)
+				      .entity(rodizios)
+				      .build();
 			
 		} catch(HttpStatusException httpExc){
 			log.add(Group.ERROR, httpExc.getMessage());
-			return Enums.HTTP_ERROR.getProp();
+			return Response
+				      .status(httpExc.getStatusCode())
+				      .entity(httpExc)
+				      .build();
 		} catch(SocketTimeoutException timeoutExc){
 			log.add(Group.ERROR, timeoutExc.getMessage());
-			return Enums.TIMEOUT_ERROR.getProp();
+			return Response
+				      .status(Status.GATEWAY_TIMEOUT)
+				      .entity(timeoutExc)
+				      .build();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.add(Group.ERROR, e.getMessage());
@@ -119,11 +123,53 @@ public class ServiceProvider {
 					Calendar.getInstance().getTime().toString()}
 			);
 			e.printStackTrace();
+			return Response
+				      .status(500)
+				      .entity(e)
+				      .build();
+		}
+	}
+	
+	private List<PeriodoRodizio> extrairRodizio(Connection.Response resp, String input) throws IOException{
+		// Grupo 2 SAIC - "área do Recalque Baixo do Reservatório Cajuru"
+		Document doc = resp.parse();
+		
+		// find form
+		FormElement form = null;
+		for (Element potentialForm : doc.select("form")) {
+			if (potentialForm.id().equals("views-exposed-form-tabela-grupo-rodizio-page-1"))
+				form = (FormElement) potentialForm;
+		}
+		log.add(Group.INFO, "form: "+ form);
+					
+		Element textBox = form.select("input#edit-grupo").first();
+		textBox.val(input);
+		
+		// ** Submit the form
+		Document searchResults = form.submit().cookies(resp.cookies()).get();
+	
+		List<PeriodoRodizio> rodizios = new ArrayList<>();
+		// read text
+		for (Element entityNumber : searchResults.select("table.views-table")) {
+			log.add(Group.INFO, "searchresElement: " + entityNumber.text());
+			int i = 1;
+			PeriodoRodizio rod = null;
+			for (Element entity : searchResults.select("span.data-rodizio")) {
+				log.add(Group.INFO, "e" + i + ": " + (entity));
+				boolean isIniRodizio = (i % 2 != 0); 
+				if (isIniRodizio) {
+					rod = new PeriodoRodizio();
+					rod.hrInicio = entity.text();
+				} else {
+					rod.hrFim = entity.text();
+					rodizios.add(rod);
+				}
+				i++;
+			}
+			break; // do only once
 		}
 		
-		log.add(Group.INFO, html);
-		//source returned
-		return html;
+		return rodizios;
 	}
 	
 

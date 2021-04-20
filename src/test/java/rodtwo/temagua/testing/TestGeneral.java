@@ -13,7 +13,6 @@ import org.junit.Test;
 import com.google.gson.Gson;
 
 import rodtwo.temagua.services.Enums;
-import rodtwo.temagua.services.bean.ReadabilityResponse;
 
 public class TestGeneral {
 
