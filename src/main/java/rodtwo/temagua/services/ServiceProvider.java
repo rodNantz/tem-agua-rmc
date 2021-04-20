@@ -35,6 +35,7 @@ import com.google.gson.Gson;
 
 import javassist.bytecode.analysis.ControlFlow.Node;
 import rodtwo.temagua.services.*;
+import rodtwo.temagua.services.bean.HtmlStringBuilderHelper;
 import rodtwo.temagua.services.bean.PeriodoRodizio;
 import rodtwo.temagua.util.MyLog;
 import rodtwo.temagua.util.MyLog.Group;
@@ -58,28 +59,35 @@ public class ServiceProvider {
 	@GET
 	@Path("/html/{end}")
 	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.TEXT_HTML + "; charset=UTF-8") 
-	public String getContentAsHTML(@PathParam("end") String input){
-		String html = "Sanepar - Rodízio RMC - Grupo: "+ input + "<br//><br//>";
-		Response res = callPageScraping(html, input);
+	@Produces(MediaType.TEXT_HTML /* + "; charset=UTF-8"*/) 
+	public String getContentAsHTML(@PathParam("end") String input) {
+		HtmlStringBuilderHelper html = new HtmlStringBuilderHelper();
+		getHtmlHead(html);
+		html.appendLn( "<div id=\"content\">" );
+		html.appendLn( "Sanepar - Rodízio RMC - Grupo: "+ input + "<br/><br/>" );
+		Response res = callPageScraping(input);
 		
 		// checar se contém lista
 		if (res.hasEntity() && res.getEntity() instanceof List) { 
 			List<?> rodizios = (List<?>) res.getEntity();
 			for(Object o : rodizios) {
 				PeriodoRodizio rod = (PeriodoRodizio) o;
-				html += ("Início do rodízio: "+ rod.hrInicio + "<br//>");
-				html += ("Previsão de volta da água: "+ rod.hrFim + "<br//><br//>");
+				html.appendLn( "Início do rodízio: "+ rod.hrInicio + "<br/>" );
+				html.appendLn( "Previsão de volta da água: "+ rod.hrFim + "<br/><br/>" );
 			}
 			if (rodizios.isEmpty())
-				html += "Grupo não encontrado.";
+				html.appendLn( "Grupo não encontrado." );
 		} else {
-			html += ("Erro "+ res.getStatus() + 
-					 (res.hasEntity() ? " - "+ res.getEntity() : "")
-					);
+			html.appendLn( "Erro "+ res.getStatus() + 
+						(res.hasEntity() ? " - "+ res.getEntity() : "")
+					   );
 		}
 		
-		return html;
+		// fechar html
+		html.appendLn( "</div>" );
+		getHtmlEnd(html);
+		
+		return html.toString();
 	}
 	
 	@GET
@@ -91,12 +99,12 @@ public class ServiceProvider {
 		return "TODO";
 	}
 	
-	private Response callPageScraping(String ret, String input){
+	private Response callPageScraping(String input){
 		input = input.replace('-',' ');
 		try {
 			Connection.Response resp = Jsoup.connect(newUrl).timeout(10*1000).execute();
 			List<PeriodoRodizio> rodizios = extrairRodizio(resp, input);
-			log.add(Group.INFO, ret);
+
 			//source returned
 			return Response
 				      .status(Status.OK)
@@ -173,6 +181,17 @@ public class ServiceProvider {
 	}
 	
 
+	private void getHtmlHead(HtmlStringBuilderHelper sb) {
+		sb.appendLn( "<html>" );
+		sb.appendLn( "	<head>" );
+		sb.appendLn( "		<meta charset=\"utf-8\"/>" );
+		sb.appendLn( "	</head>" );
+		sb.appendLn( "	<body>" );
+	}
 	
+	private void getHtmlEnd(HtmlStringBuilderHelper sb) {
+		sb.appendLn( "	</body>" );
+		sb.appendLn( "</html>" );
+	}
 	
 }
