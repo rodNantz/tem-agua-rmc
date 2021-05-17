@@ -61,12 +61,11 @@ public class ServiceProvider {
 	 * @param url
 	 * @return htmlString
 	 */
-	
 	@GET
 	@Path("/html/{end}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_HTML +"; charset=UTF-8") 
-	public String getContentAsHTML(@PathParam("end") String input) {
+	public Response getContentAsHTML(@PathParam("end") String input) {
 		HtmlStringBuilderHelper html = new HtmlStringBuilderHelper();
 		getHtmlHead(html);
 		html.appendLn( "<div id=\"content\">" );
@@ -84,26 +83,38 @@ public class ServiceProvider {
 			if (rodizios.isEmpty())
 				html.appendLn( "Grupo não encontrado." );
 		} else {
-			html.appendLn( "Erro "+ res.getStatus() + 
-						(res.hasEntity() ? " - "+ res.getEntity() : "")
-					   );
+			return res;
 		}
 		
 		// fechar html
 		html.appendLn( "</div>" );
 		getHtmlEnd(html);
 		
-		return html.toString();
+		return Response.status(Status.OK)
+					   .encoding("UTF-8")
+					   .entity(html.toString())
+					   .build();
 	}
+	
 	
 	@GET
 	@Path("/json/{end}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getContentAsJSON(@PathParam("end") String input){
-		// TODO
-		return "TODO";
+	public Response getContentAsJSON(@PathParam("end") String input){
+		Response res = callPageScraping(input);
+		
+		if (res.hasEntity() && res.getEntity() instanceof List) {
+			List<?> rodizios = (List<?>) res.getEntity();
+			return Response.status(Status.OK)
+					   .encoding("UTF-8")
+					   .entity(gson.toJson(rodizios))
+					   .build();
+		} else {
+			return res;
+		}
 	}
+	
 	
 	private Response callPageScraping(String input){
 		input = input.replace('-',' ');
