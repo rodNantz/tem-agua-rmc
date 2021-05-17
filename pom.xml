@@ -26,7 +26,9 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.4</version>
         <configuration>
+        	<encoding>UTF-8</encoding>
             <archive>
                 <manifest>
                     <addClasspath>true</addClasspath>
@@ -46,7 +48,7 @@
                 </goals>
             </execution>
         </executions>
-          </plugin>
+      </plugin>
     </plugins>
     
   </build>
