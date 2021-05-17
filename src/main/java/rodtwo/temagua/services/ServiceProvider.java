@@ -48,6 +48,12 @@ public class ServiceProvider {
 	MyLog log = MyLog.getInstance();
 	static final String newUrl = "http://site.sanepar.com.br/grupos-rodizio";
 	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8") 
+	public String endpointTest() {
+		return "Test";
+	}
+	
 	/**
 	 * Scraping do site da Sanepar - rodízio em Curitiba e RM
 	 * ex. chamada: /server/rodizio/2-SAIC 

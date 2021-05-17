@@ -1,84 +1,35 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>Kind-o' Metanavigator</title>
-		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
-		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<title>Tem Água? - RMC</title>
 		<!--<link rel="stylesheet" type="text/css" href="css/rockToSpock.css">-->
 		
-		<script type="text/javascript">
-				
-			function init(){
-				$('#iframe').css('opacity', 0);
-				$('#iframe').css('opacity', 1);
-				$('#iframe').css('background-image', 'url(img/unloaded.png)');
-				$('#iframe').css('background-position', 'center');					
-			}	
-							
+		<script>
+			function changeFormAction(element) {
+			  var grp = document.getElementById("item").value;
+			  console.log('grp:' + grp);
+			  var form = document.querySelector("#myForm");
+			  if (grp.includes(' ')) {
+			  	grp = grp.replaceAll(' ', '-');
+			  }
+			  form.action = "./server/rodizio/html/" + grp;
+			  form.submit();
+			}
 		</script>
 	</head>
 
-	<body style="background-color:silver;" ng-app="temAgua">
-		<div id="content" ng-controller="MainController">
-			<script src="app/app.js"></script>
-			<script src="app/controller.js"></script>
-						
-			<header style="width:100%; height: 40px; margin-top:5px;" >
-				<h3 style="margin-left:15px;">{{title}}</h3>
-				<div id="search" style="margin-top:-40px; margin-left: 38%; ">
-					<input id="inputSite" name="inputSite" type="text" ng-model="inputSite" placeholder="Type a URL or search it..." />
-					<button id="loadButton" ng-click="loadNewPage();">GO</button>
-					<button ng-click="search();">Search</button>
-					<a href="purpose.html" style="margin-right:-10%;" >lightweight websites</a>
-				</div>
-			</header>
-			
-			<a href="http://www.test.com" class="wsOnClick" >Test link</a>
-			
-			<!--  <div ng-bind-html="website" style=" background-color:white; width:100%; height:90%" > </div>
-			-->
-			 
-			<input name="realAdress" id="realAdress" type="hidden" ng-model="website" />
-			
-			<iframe id="iframe" srcdoc="{{website}}" onload="init();" 
-				width="100%" height="90%" 
-				allowtransparency="true"
-				style="-webkit-transform:scale(0.98);-moz-transform-scale(0.5);" 
-				sandbox="allow-modals allow-forms allow-pointer-lock allow-popups allow-same-origin allow-top-navigation allow-scripts"  
-			>			
-			</iframe>
-		 	
-
-		</div>
+	<body style="background-color:white;" >	
+		<h2>Tem Água - RMC</h1>
+		<h3>Insira o nome do seu grupo de rodízio de acordo com o site da Sanepar:</h2>		
+	
+		<form id="myForm" onsubmit="changeFormAction(this)">
+		  <input type="text" id="item" placeholder="2 SAIC">
+		  <button type="submit" id="submitButton">Enviar</button>
+		</form>
 		
-		<script type="text/javascript">
-			/*
-			function init(){
-				$('#iframe').css('opacity', 0);
-				$('#iframe').css('opacity', 1);
-				$('#iframe').css('background-image', 'url(img/unloaded.png)');
-				$('#iframe').css('background-position', 'center');					
-			}	
-					
-			function openLink(url){
-				alert('You clicked the link.');
-				angular.element(document.getElementById('content')).scope().urlToFile(url);
-				return false;		
-			}
-					
-			$('.wsOnClick').click(function(event)
-				{
-				alert("laalalaa");
-				var link = $(this);
-				var target = link.attr("target");
-				alert(target);	 
-				
-				event.preventDefault();
-				}
-			);
-			*/
-		</script>
-		
+		<br/>
+		<a href="http://site.sanepar.com.br/grupos-rodizio">Grupos de Abastecimento - Sanepar</a> 
 	</body>
 
 </html>
