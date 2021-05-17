@@ -191,7 +191,7 @@ public class ServiceProvider {
 		sb.appendLn( "<!DOCTYPE html>" );
 		sb.appendLn( "<html>" );
 		sb.appendLn( "	<head>" );
-		sb.appendLn( "		<meta charset=\"utf-8\"/>" );
+		sb.appendLn( "		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" );
 		sb.appendLn( "	</head>" );
 		sb.appendLn( "	<body>" );
 	}
