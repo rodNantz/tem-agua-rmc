@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -18,8 +17,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-<<<<<<< HEAD
-import rodtwo.temagua.launch.JettyLauncher;
 import rodtwo.temagua.services.bean.PeriodoRodizio;
 import rodtwo.temagua.util.MyLog;
 import rodtwo.temagua.util.RodizioListUtil;
@@ -63,47 +60,6 @@ public class TemAguaBot extends TelegramLongPollingBot {
 			Client client = ClientBuilder.newClient();
 			WebTarget webTarget 
 			  = client.target(this.host + this.endpoint + "/json/" 
-=======
-import rodtwo.temagua.services.bean.PeriodoRodizio;
-import rodtwo.temagua.util.RodizioListUtil;
-
-public class TemAguaBot extends TelegramLongPollingBot {
-
-	public static void init(int port, String endpoint) throws TelegramApiException {
-        // Instantiate Telegram Bots API
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-
-        // Register bot
-        try {
-            botsApi.registerBot(new TemAguaBot(port, endpoint));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-	}
-	
-	
-	private int port;
-	private String endpoint;
-	
-	public TemAguaBot(int port, String endpoint) {
-		this.port = port;
-		this.endpoint = endpoint;
-	}
-	
-	@Override
-	public void onUpdateReceived(Update update) {
-		if (update.hasMessage() && update.getMessage().hasText()) {
-			// call jetty local API
-			String rawUpdateText = update.getMessage().getText();
-			String[] updateMsgs = rawUpdateText.split(" ");
-			String msg = updateMsgs[0].contains(getBotUsername()) 
-							? rawUpdateText.replace("@"+getBotUsername(), "") 
-							: rawUpdateText; 
-			
-			Client client = ClientBuilder.newClient();
-			WebTarget webTarget 
-			  = client.target("http://localhost:" + this.port + "/" + this.endpoint + "/json/" 
->>>>>>> branch 'main' of https://github.com/rodtwo/tem-agua-rmc.git
 					  			+ msg );	// e.g. "2-saic"
 			
 			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);

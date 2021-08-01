@@ -60,15 +60,11 @@ public class JettyLauncher {
 		
         try {
         	// start telegram bot
-<<<<<<< HEAD
         	String botAddress = "http://localhost:" + port;
         	if (svrPort != null)	// deployed, no-dev environment 
         		botAddress = "http://" + PropertySource.props.getProperty("temagua.host.address");
         	
         	TemAguaBot.init(botAddress, "/server/rodizio");
-=======
-        	TemAguaBot.init(port, "server/rodizio");
->>>>>>> branch 'main' of https://github.com/rodtwo/tem-agua-rmc.git
         	
             // start jetty server
         	log.add(Group.INFO, "@localhost:" + port);
