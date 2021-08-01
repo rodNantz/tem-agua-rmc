@@ -39,6 +39,7 @@ import rodtwo.temagua.services.bean.HtmlStringBuilderHelper;
 import rodtwo.temagua.services.bean.PeriodoRodizio;
 import rodtwo.temagua.util.MyLog;
 import rodtwo.temagua.util.MyLog.Group;
+import rodtwo.temagua.util.RodizioListUtil;
 
 // /server/rodizio
 @Path("/rodizio")
@@ -74,14 +75,19 @@ public class ServiceProvider {
 		
 		// checar se contém lista
 		if (res.hasEntity() && res.getEntity() instanceof List) { 
-			List<?> rodizios = (List<?>) res.getEntity();
-			for(Object o : rodizios) {
-				PeriodoRodizio rod = (PeriodoRodizio) o;
+			List<PeriodoRodizio> rodizios = (List<PeriodoRodizio>) res.getEntity();
+			
+			html.appendLn(RodizioListUtil.convertRodizioListToString(rodizios, "<br/>"));
+			/*
+			for(PeriodoRodizio o : rodizios) {
+				//PeriodoRodizio rod = (PeriodoRodizio) o;
 				html.appendLn( "Início do rodízio: "+ rod.hrInicio + "<br/>" );
 				html.appendLn( "Previsão de volta da água: "+ rod.hrFim + "<br/><br/>" );
+			
 			}
 			if (rodizios.isEmpty())
 				html.appendLn( "Grupo não encontrado." );
+			*/
 		} else {
 			return res;
 		}
@@ -114,7 +120,6 @@ public class ServiceProvider {
 			return res;
 		}
 	}
-	
 	
 	private Response callPageScraping(String input){
 		input = input.replace('-',' ');

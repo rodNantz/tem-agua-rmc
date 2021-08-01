@@ -20,6 +20,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 
 import rodtwo.temagua.services.ServiceProvider;
 import rodtwo.temagua.services.bean.PropertySource;
+import rodtwo.temagua.telegrambot.TemAguaBot;
 import rodtwo.temagua.util.MyLog;
 import rodtwo.temagua.util.MyLog.Group;
 
@@ -57,8 +58,11 @@ public class JettyLauncher {
 		a.addHandler(context);
 		server.setHandler(a);
 		
-        // Start the server
         try {
+        	// start telegram bot
+        	TemAguaBot.init(port, "server/rodizio");
+        	
+            // start jetty server
         	log.add(Group.INFO, "@localhost:" + port);
 			server.start();
 			server.join();
