@@ -64,7 +64,9 @@ public class JettyLauncher {
         	if (svrPort != null)	// deployed, no-dev environment 
         		botAddress = "http://" + PropertySource.props.getProperty("temagua.host.address");
         	
-        	TemAguaBot.init(botAddress, "/server/rodizio");
+        	TemAguaBot.init(PropertySource.props.getProperty("temagua.bot.token"), 
+        					botAddress, 
+        					"/server/rodizio");
         	
             // start jetty server
         	log.add(Group.INFO, "@localhost:" + port);

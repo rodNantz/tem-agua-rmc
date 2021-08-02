@@ -25,14 +25,14 @@ import rodtwo.temagua.util.MyLog.Group;
 
 public class TemAguaBot extends TelegramLongPollingBot {
 
-	public static void init(String host, String endpoint) throws TelegramApiException {
+	public static void init(String botToken, String host, String endpoint) throws TelegramApiException {
         // Instantiate Telegram Bots API
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
 
         // Register bot
         try {
         	MyLog.getInstance().add(Group.IMPORTANT, "Telegram bot will query: "+ host + endpoint);
-            botsApi.registerBot(new TemAguaBot(host, endpoint));
+            botsApi.registerBot(new TemAguaBot(botToken, host, endpoint));
         } catch (TelegramApiException e) {
         	MyLog.getInstance().add(Group.ERROR, e.toString());
         	e.printStackTrace();	// TODO pass stack to MyLog
@@ -40,10 +40,12 @@ public class TemAguaBot extends TelegramLongPollingBot {
 	}
 	
 	
+	private String botToken;
 	private String host;
 	private String endpoint;
 	
-	public TemAguaBot(String host, String endpoint) {
+	public TemAguaBot(String botToken, String host, String endpoint) {
+		this.botToken = botToken;
 		this.host = host;
 		this.endpoint = endpoint;
 	}
@@ -94,7 +96,7 @@ public class TemAguaBot extends TelegramLongPollingBot {
 
 	@Override
 	public String getBotToken() {
-		return PropertySource.props.getProperty("temagua.bot.token");
+		return botToken;
 	}
 
 }
