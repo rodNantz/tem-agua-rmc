@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import rodtwo.temagua.services.bean.PeriodoRodizio;
+import rodtwo.temagua.services.bean.PropertySource;
 import rodtwo.temagua.util.MyLog;
 import rodtwo.temagua.util.RodizioListUtil;
 import rodtwo.temagua.util.MyLog.Group;
@@ -30,7 +31,7 @@ public class TemAguaBot extends TelegramLongPollingBot {
 
         // Register bot
         try {
-        	MyLog.getInstance().add(Group.INFO, "Telegram bot host: "+ host + endpoint);
+        	MyLog.getInstance().add(Group.IMPORTANT, "Telegram bot will query: "+ host + endpoint);
             botsApi.registerBot(new TemAguaBot(host, endpoint));
         } catch (TelegramApiException e) {
         	MyLog.getInstance().add(Group.ERROR, e.toString());
@@ -49,13 +50,16 @@ public class TemAguaBot extends TelegramLongPollingBot {
 	
 	@Override
 	public void onUpdateReceived(Update update) {
+		MyLog.getInstance().add(Group.IMPORTANT, "Update received");
 		if (update.hasMessage() && update.getMessage().hasText()) {
+			MyLog.getInstance().add(Group.IMPORTANT, "\t" + update.getMessage().getText());
 			// call jetty local API
 			String rawUpdateText = update.getMessage().getText();
 			String[] updateMsgs = rawUpdateText.split(" ");
 			String msg = updateMsgs[0].contains(getBotUsername()) 
 							? rawUpdateText.replace("@"+getBotUsername(), "") 
 							: rawUpdateText; 
+			msg = msg.replace(" ", "-");
 			
 			Client client = ClientBuilder.newClient();
 			WebTarget webTarget 
@@ -90,7 +94,7 @@ public class TemAguaBot extends TelegramLongPollingBot {
 
 	@Override
 	public String getBotToken() {
-		return "1924915427:AAFZ8bI5ZS-H21K1LrN8CxwsvhfPdoxTR7c";
+		return PropertySource.props.getProperty("temagua.bot.token");
 	}
 
 }

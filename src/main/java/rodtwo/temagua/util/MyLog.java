@@ -14,7 +14,8 @@ public class MyLog {
 	public enum Group {
 		INFO("INFO"),
 		WARNING("WARN"),
-		ERROR("ERROR"); 
+		ERROR("ERROR"),
+		IMPORTANT("IMPORTANT");		// same severity as error
 		public final String property;
 		
 		Group(String prop){
@@ -28,6 +29,8 @@ public class MyLog {
 				return Group.WARNING;
 			if (prop.equalsIgnoreCase(ERROR.property))
 				return Group.ERROR;
+			if (prop.equalsIgnoreCase(IMPORTANT.property))
+				return Group.IMPORTANT;
 			return null;
 		}
 		
@@ -61,6 +64,7 @@ public class MyLog {
 			case WARNING:
 				print[1] = true;
 			case ERROR:
+			case IMPORTANT:
 				print[2] = true;
 		}
 	}
@@ -108,7 +112,7 @@ public class MyLog {
 			return print[0];
 		} else if(group == Group.WARNING){
 			return print[1];
-		} else if(group == Group.ERROR){
+		} else if(group == Group.ERROR || group == Group.IMPORTANT){
 			return print[2];
 		} 
 		return false;
@@ -132,6 +136,7 @@ public class MyLog {
 				case INFO:
 				case WARNING:
 				case ERROR:
+				case IMPORTANT:
 					return Group.getGroup(severityArg);
 			}
 		}
